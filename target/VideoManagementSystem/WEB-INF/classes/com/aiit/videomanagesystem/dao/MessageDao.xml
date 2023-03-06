@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiit.videomanagesystem.dao.MessageDao">
+
+    <resultMap type="com.aiit.videomanagesystem.entity.Message" id="MessageMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="msgdate" column="msgdate" jdbcType="TIMESTAMP"/>
+        <result property="likesId" column="likes_id" jdbcType="INTEGER"/>
+        <result property="videoId" column="video_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="msgWithUser" type="com.aiit.videomanagesystem.entity.Message">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="msgdate" column="msgdate" jdbcType="TIMESTAMP"/>
+        <result property="likesId" column="likes_id" jdbcType="INTEGER"/>
+        <result property="videoId" column="video_id" jdbcType="INTEGER"/>
+        <!--配置user队形中account集合的映射-->
+        <!--定义一对多的关系映射，实现对account的封装，用collection标签
+        ofType属性指定内容：要封装的实体对象类型
+        select属性指定内容：查询用户的唯一标识
+        column属性指定内容：用户根据id查询是所需要的参数
+        -->
+        <collection property="user" ofType="com.aiit.videomanagesystem.entity.User" column="user_id"
+                    select="com.aiit.videomanagesystem.dao.UserDao.queryById"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="MessageMap">
+        select
+          id, user_id, content, msgdate, likes_id, video_id
+        from message
+        where id = #{id}
+    </select>
+
+    <select id="queryByUserIDAndVideoId" resultMap="msgWithUser">
+        select
+        id, user_id, content, msgdate, likes_id, video_id
+        from message
+        where video_id =#{video_id}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from message
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="content != null and content != ''">
+                and content = #{content}
+            </if>
+            <if test="msgdate != null">
+                and msgdate = #{msgdate}
+            </if>
+            <if test="likesId != null">
+                and likes_id = #{likesId}
+            </if>
+            <if test="videoId != null">
+                and video_id = #{videoId}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into message(user_id, content, msgdate, likes_id, video_id)
+        values (#{userId}, #{content}, #{msgdate}, '0', #{videoId})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into message(user_id, content, msgdate, likes_id, video_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.userId}, #{entity.content}, #{entity.msgdate}, #{entity.likesId}, #{entity.videoId})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into message(user_id, content, msgdate, likes_id, video_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.userId}, #{entity.content}, #{entity.msgdate}, #{entity.likesId}, #{entity.videoId})
+        </foreach>
+        on duplicate key update
+        user_id = values(user_id),
+        content = values(content),
+        msgdate = values(msgdate),
+        likes_id = values(likes_id),
+        video_id = values(video_id)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update message
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="msgdate != null">
+                msgdate = #{msgdate},
+            </if>
+            <if test="likesId != null">
+                likes_id = #{likesId},
+            </if>
+            <if test="videoId != null">
+                video_id = #{videoId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from message where id = #{id}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aiit.videomanagesystem.dao.VideoDao">
+    <resultMap type="com.aiit.videomanagesystem.entity.Video" id="VideoMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="heat" column="heat" jdbcType="INTEGER"/>
+        <result property="likes" column="likes" jdbcType="INTEGER"/>
+        <result property="collects" column="collects" jdbcType="INTEGER"/>
+        <result property="src" column="src" jdbcType="VARCHAR"/>
+        <result property="img" column="img" jdbcType="VARCHAR"/>
+        <result property="date" column="date" jdbcType="TIMESTAMP"/>
+        <result property="info" column="info" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="ischeck" column="ischeck" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="VideoMap">
+        select
+        id, name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck
+        from video
+        where id = #{id}
+    </select>
+    <select id="queryByUserId" resultMap="VideoMap">
+        select
+        id, name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck
+        from video
+        where user_id = #{userId}
+    </select>
+    <!--查询单个-->
+    <select id="queryByUserName" resultMap="VideoMap">
+        select
+        id, name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck
+        from video
+        where id = #{userName} and  ischeck != '0'
+    </select>
+    <select id="queryBySort" resultMap="VideoMap">
+        select
+        id, name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck
+        from video
+        where sort = #{sort} and ischeck != '0'
+    </select>
+
+    <!--查询全部-->
+    <select id="queryAll" resultMap="VideoMap">
+        select
+        id, name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck
+        from video where ischeck != '0'
+    </select>
+
+    <!--查询全部-->
+    <select id="queryAllAmin" resultMap="VideoMap">
+        select
+                id, name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck
+        from video
+    </select>
+    <!--查询人气前三-->
+    <select id="query3" resultMap="VideoMap">
+        select
+        id,name, heat, img,info
+        from video
+        ORDER BY heat DESC limit 0,3
+    </select>
+
+    <!--查询类别3个-->
+    <select id="queryBySort3" resultMap="VideoMap">
+        select
+        id, name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck
+        from video
+        where sort = #{sort} and id !=#{videoId} and ischeck != '0' limit 0,3
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from video
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="heat != null">
+                and heat = #{heat}
+            </if>
+            <if test="likes != null">
+                and likes = #{likes}
+            </if>
+            <if test="collects != null">
+                and collects = #{collects}
+            </if>
+            <if test="src != null and src != ''">
+                and src = #{src}
+            </if>
+            <if test="img != null and img != ''">
+                and img = #{img}
+            </if>
+            <if test="date != null">
+                and date = #{date}
+            </if>
+            <if test="info != null and info != ''">
+                and info = #{info}
+            </if>
+            <if test="sort != null and sort != ''">
+                and sort = #{sort}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="ischeck != null">
+                and ischeck = #{ischeck}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into video(name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck)
+        values (#{name},0, 0, 0, #{src}, #{img}, #{date}, #{info}, #{sort}, #{userId},
+        0)
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into video(name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.heat}, #{entity.likes}, #{entity.collects}, #{entity.src}, #{entity.img},
+            #{entity.date}, #{entity.info}, #{entity.sort}, #{entity.userId}, #{entity.ischeck})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into video(name, heat, likes, collects, src, img, date, info, sort, user_id, ischeck)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.heat}, #{entity.likes}, #{entity.collects}, #{entity.src}, #{entity.img},
+            #{entity.date}, #{entity.info}, #{entity.sort}, #{entity.userId}, #{entity.ischeck})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        heat = values(heat),
+        likes = values(likes),
+        collects = values(collects),
+        src = values(src),
+        img = values(img),
+        date = values(date),
+        info = values(info),
+        sort = values(sort),
+        user_id = values(user_id),
+        ischeck = values(ischeck)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update video
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="heat != null">
+                heat = #{heat},
+            </if>
+            <if test="likes != null">
+                likes = #{likes},
+            </if>
+            <if test="collects != null">
+                collects = #{collects},
+            </if>
+            <if test="src != null and src != ''">
+                src = #{src},
+            </if>
+            <if test="img != null and img != ''">
+                img = #{img},
+            </if>
+            <if test="date != null">
+                date = #{date},
+            </if>
+            <if test="info != null and info != ''">
+                info = #{info},
+            </if>
+            <if test="sort != null and sort != ''">
+                sort = #{sort},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="ischeck != null">
+                ischeck = #{ischeck},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from video where id = #{id}
+    </delete>
+
+
+</mapper>
+

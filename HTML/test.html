@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style1.css">
+  <link rel="stylesheet" href="css/sidebars.css">
+  <link rel="stylesheet" href="js/layui/css/layui.css">
+</head>
+
+<body>
+  <table class="layui-hide" id="test" lay-filter="test"></table>
+  <script type="text/html" id="toolbarDemo">
+  
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/bootstrap-4.2.1.js"></script>
+  <script src="js/layui/layui.js"></script>
+  
+<script type="text/html" id="barDemo">
+<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+  <script>
+    layui.use('table', function () {
+      var table = layui.table;
+
+      table.render({
+        elem: '#test'
+        , url: '/test/table/demo1.json'
+        , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+        , defaultToolbar: []
+        , title: '用户数据表'
+        , cols: [[
+          , { field: 'id', title: 'ID', fixed: 'left', unresize: true, sort: true }
+          , { field: 'username', title: '用户名',  edit: 'text' }
+          , {
+            field: 'email', title: '邮箱',  edit: 'text', templet: function (res) {
+              return '<em>' + res.email + '</em>'
+            }
+          }
+          , { field: 'name', title: '姓名',  edit: 'text' }
+          , { field: 'regdate', title: '注册时间',  edit: 'text' }
+          , { field: 'birthday', title: '注册时间',  edit: 'text' }
+          , { field: 'sex', title: '性别',  edit: 'text', sort: true }
+          , { fixed: 'right', title: '操作', toolbar: '#barDemo' }
+        ]]
+        , page: true
+      });
+      //监听行工具事件
+      table.on('tool(test)', function (obj) {
+        var data = obj.data;
+        //console.log(obj)
+        if (obj.event === 'del') {
+          layer.confirm('真的删除行么', function (index) {
+            obj.del();
+            layer.close(index);
+          });
+        } else if (obj.event === 'edit') {
+          layer.prompt({
+            formType: 2
+            , value: data.email
+          }, function (value, index) {
+            obj.update({
+              email: value
+            });
+            layer.close(index);
+          });
+        }
+      });
+    });
+  </script>
+
+</body>
+
+</html>

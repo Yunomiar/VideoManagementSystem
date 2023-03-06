@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+  <!-- layui css -->
+  <link rel="stylesheet" type="text/css" href="https://www.layuicdn.com/layui-v2.5.6/css/layui.css" />
+  <!-- layui js -->
+  <script src="https://www.layuicdn.com/layui-v2.5.6/layui.js"></script>
+</head>
+
+<body style="min-height: 1000px;">
+  <style type="text/css">
+    .layui-container button {
+      margin-top: 10px;
+    }
+  </style>
+
+
+  <button type="button" class="layui-btn btn" data-user_id="1" id='one'>加载信息,并弹出编辑表单</button>
+  <noscript id="tpl-user">
+    <!-- style 尽量不要影响到页面其他元素,使用#userinfo范围限定 -->
+    <style type="text/css">
+      #userinfo .layui-form-label.layui-required:after {
+        content: "*";
+        color: red;
+        position: absolute;
+        top: 10px;
+        right: 5px;
+      }
+    </style>
+    <div class="layui-card" id="userinfo">
+      <div class="layui-card-header">用户信息修改</div>
+      <div class="layui-card-body">
+        <form class="layui-form" action="" lay-filter="info">
+          <div class="layui-form-item">
+            <label class="layui-form-label layui-required">用户名</label>
+            <div class="layui-input-block">
+              <input type="text" name="username" lay-verify="required" lay-reqtext="用户名是必填项，岂能为空？" placeholder="请输入"
+                autocomplete="off" class="layui-input">
+            </div>
+          </div>
+          <div class="layui-form-item">
+            <label class="layui-form-label layui-required">姓名</label>
+            <div class="layui-input-block">
+              <input type="text" name="name" lay-verify="required" lay-reqtext="姓名不为空" placeholder="请输入"
+                autocomplete="off" class="layui-input">
+            </div>
+          </div>
+          <div class="layui-form-item">
+            <label class="layui-form-label layui-required">邮箱</label>
+            <div class="layui-input-block">
+              <input type="text" name="email" lay-verify="required" lay-reqtext="邮箱不为空" placeholder="请输入"
+                autocomplete="off" class="layui-input">
+            </div>
+          </div>
+          <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-inline">
+              <input type="password" name="password" lay-verify="pass" placeholder="请输入密码" autocomplete="off"
+                class="layui-input">
+            </div>
+            <div class="layui-form-mid layui-word-aux">请填写6到12位密码</div>
+          </div>
+          <div class="layui-form-item">
+            <div class="layui-inline">
+              <label class="layui-form-label">生日</label>
+              <div class="layui-input-inline">
+                <input type="text" name="birthday" id="birthday" lay-verify="birthday" placeholder="yyyy-MM-dd"
+                  autocomplete="off" class="layui-input">
+              </div>
+            </div>
+          </div>
+          <div class="layui-form-item">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-block">
+              <input type="radio" name="sex" value="男" title="男" checked="">
+              <input type="radio" name="sex" value="女" title="女">
+            </div>
+          </div>
+          <div class="layui-form-item">
+            <div class="layui-input-block">
+
+              <button type="submit" class="layui-btn tt" lay-submit="" lay-filter="demo1">立即提交</button>
+              <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+          </div>
+        </form>
+        <!-- 下方script标签中不能使用单行注释语句,否则laytpl编译解析会报错-->
+        <!-- 语句之间也要严格用分号隔开,因为laytpl编译时,那些换行都被去掉了,导致代码连在一起 -->
+        <script>
+          layui.use(['jquery', 'form', 'laydate'], function () {
+            var $ = layui.$;
+            var form = layui.form, layer = layui.layer, laydate = layui.laydate;
+            $('.layui-btn.tt').on('click', function () {
+            });
+            /** 使用laytpl模板引擎 自动赋值非常方便 */
+            form.val("info", {
+              "username": "{{d.username}}",
+              "password": "{{d.password}}",
+              "birthday": "{{d.birthday}}",
+              "email": "{{d.email}}",
+              "name": "{{d.name}}",
+              "sex": "{{d.sex}}"
+            });
+            laydate.render({
+              elem: '#birthday'
+            });
+            form.verify({
+              title: function (value) {
+                if (value.length < 5) {
+                  return '标题至少得5个字符啊';
+                }
+              },
+              pass: [
+                /^[\S]{6,16}$/, '密码必须6到16位，且不能出现空格'
+              ]
+            });
+          });
+        </script>
+      </div>
+    </div>
+  </noscript>
+
+  <script type="text/javascript">
+    layui.use(['layer', 'laytpl'], function () {
+      var $ = layui.$ //重点处,layui有内置jquery模块
+      var layer = layui.layer, laytpl = layui.laytpl;
+      //获取id为tpl-user的noscript标签的html内容,
+      //不能使用innerHtml 使用innerHTML会转义
+      laytpl(document.getElementById('tpl-user').innerText)
+        .render(tpldata, function (html) {
+          //渲染完成后直接打开
+          layer.open({
+            type: 1,
+            shade: false,
+            area: ['80%', '80%'],
+            title: false, //不显示标题
+            content: html,
+          });
+        });
+    });
+
+  </script>
+</body>
+
+</html>
